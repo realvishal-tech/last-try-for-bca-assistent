@@ -1,6 +1,12 @@
 # 🎓 BCA Study Hub - LND College
 
-## 📋 Project Overview
+## � Deploy to Netlify
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/realvishal-tech/last-try-for-bca-assistent)
+
+---
+
+## �📋 Project Overview
 
 **BCA Study Hub** is a professional-level, fully responsive static frontend application designed exclusively for BCA (Bachelor of Computer Applications) students at LND College. It serves as an all-in-one comprehensive academic platform combining the best features of Notion, Coursera, and college portals.
 
