@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject - BCA Study Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>BCA Study Hub</span>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="#" onclick="navigateToBookmarks(); return false;" class="nav-link">
+                    <i class="fas fa-bookmark"></i> Bookmarks
+                </a></li>
+                <li><a href="#" onclick="navigateToProgress(); return false;" class="nav-link">
+                    <i class="fas fa-chart-pie"></i> Progress
+                </a></li>
+                <li><a href="admin.html" class="nav-link">
+                    <i class="fas fa-lock"></i> Admin
+                </a></li>
+                <li>
+                    <button id="themeToggle" class="btn-theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button id="logoutBtn" class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <a href="#" id="semesterLink">Semester</a>
+            <span>/</span>
+            <span id="subjectBreadcrumb">Subject</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Subject Header -->
+            <div class="subject-header-section">
+                <div class="subject-header-content">
+                    <h1 id="subjectName">Subject Name</h1>
+                    <p id="subjectCode">Subject Code</p>
+                    <div class="subject-actions-header">
+                        <button id="bookmarkBtn" class="btn-icon-large" onclick="toggleBookmarkSubject()">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Bookmark</span>
+                        </button>
+                        <button id="completeBtn" class="btn-icon-large" onclick="toggleSubjectComplete()">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Mark Complete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs-nav">
+                <button class="tab-button active" onclick="switchTab('notes')">
+                    <i class="fas fa-sticky-note"></i> Notes
+                </button>
+                <button class="tab-button" onclick="switchTab('pyqs')">
+                    <i class="fas fa-file-alt"></i> PYQs
+                </button>
+                <button class="tab-button" onclick="switchTab('videos')">
+                    <i class="fas fa-play-circle"></i> Videos
+                </button>
+                <button class="tab-button" onclick="switchTab('programs')">
+                    <i class="fas fa-code"></i> Programs
+                </button>
+                <button class="tab-button" onclick="switchTab('lab')">
+                    <i class="fas fa-flask"></i> Lab
+                </button>
+            </div>
+
+            <!-- Tab Contents -->
+            
+            <!-- Notes Tab -->
+            <div id="notesTab" class="tab-content active">
+                <div class="content-header">
+                    <h2>Study Notes</h2>
+                    <div class="content-actions">
+                        <input type="text" id="notesSearch" placeholder="Search notes..." class="search-input" onkeyup="filterContent('notes')">
+                    </div>
+                </div>
+                <div class="content-items" id="notesList"></div>
+            </div>
+
+            <!-- PYQs Tab -->
+            <div id="pyqsTab" class="tab-content">
+                <div class="content-header">
+                    <h2>Previous Year Questions</h2>
+                    <div class="content-actions">
+                        <input type="text" id="pyqsSearch" placeholder="Search PYQs..." class="search-input" onkeyup="filterContent('pyqs')">
+                    </div>
+                </div>
+                <div class="content-items" id="pyqsList"></div>
+            </div>
+
+            <!-- Videos Tab -->
+            <div id="videosTab" class="tab-content">
+                <div class="content-header">
+                    <h2>Video Lectures</h2>
+                    <div class="content-actions">
+                        <input type="text" id="videosSearch" placeholder="Search videos..." class="search-input" onkeyup="filterContent('videos')">
+                    </div>
+                </div>
+                <div class="video-grid" id="videosList"></div>
+            </div>
+
+            <!-- Programs Tab -->
+            <div id="programsTab" class="tab-content">
+                <div class="content-header">
+                    <h2>Programs & Code</h2>
+                    <div class="content-actions">
+                        <input type="text" id="programsSearch" placeholder="Search programs..." class="search-input" onkeyup="filterContent('programs')">
+                    </div>
+                </div>
+                <div class="content-items" id="programsList"></div>
+            </div>
+
+            <!-- Lab Tab -->
+            <div id="labTab" class="tab-content">
+                <div class="content-header">
+                    <h2>Lab Work</h2>
+                    <div class="content-actions">
+                        <input type="text" id="labSearch" placeholder="Search lab work..." class="search-input" onkeyup="filterContent('lab')">
+                    </div>
+                </div>
+                <div class="content-items" id="labList"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Content Modal -->
+    <div id="contentModal" class="modal hidden">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="btn-icon" onclick="closeContentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-actions">
+                <button id="bookmarkContentBtn" class="btn-secondary" onclick="toggleBookmarkContent()">
+                    <i class="fas fa-bookmark"></i> Bookmark
+                </button>
+                <button id="downloadBtn" class="btn-primary" onclick="downloadContent()" style="display: none;">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button class="btn-secondary" onclick="closeContentModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 BCA Study Hub - LND College | Crafted with <i class="fas fa-heart"></i> for students</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentSubject = {
+            code: '',
+            name: '',
+            semester: 0
+        };
+        let currentContentId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTheme();
+            setupHamburger();
+            loadSubjectPage();
+        });
+
+        function loadSubjectPage() {
+            const params = new URLSearchParams(window.location.search);
+            currentSubject.code = params.get('code');
+            currentSubject.name = decodeURIComponent(params.get('name'));
+            currentSubject.semester = params.get('sem');
+
+            if (!currentSubject.code || !currentSubject.name) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('subjectName').textContent = currentSubject.name;
+            document.getElementById('subjectCode').textContent = currentSubject.code;
+            document.getElementById('subjectBreadcrumb').textContent = currentSubject.name;
+            document.getElementById('semesterLink').href = `semester.html?sem=${currentSubject.semester}`;
+            document.getElementById('semesterLink').textContent = `Semester ${currentSubject.semester}`;
+
+            addToRecentlyViewed(currentSubject);
+            loadTabContents('notes');
+            updateBookmarkButton();
+            updateCompleteButton();
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.closest('.tab-button').classList.add('active');
+
+            loadTabContents(tabName);
+        }
+
+        function loadTabContents(tabType) {
+            const items = getContentBySubjectAndType(currentSubject.code, tabType);
+
+            let containerId = '';
+            const typeMap = {
+                'notes': 'notesList',
+                'pyqs': 'pyqsList',
+                'videos': 'videosList',
+                'programs': 'programsList',
+                'lab': 'labList'
+            };
+            containerId = typeMap[tabType];
+
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No content available yet</p></div>';
+                return;
+            }
+
+            if (tabType === 'videos') {
+                renderVideoItems(items, container);
+            } else {
+                renderContentItems(items, container, tabType);
+            }
+        }
+
+        function renderContentItems(items, container, tabType) {
+            items.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'content-item';
+                itemEl.innerHTML = `
+                    <div class="content-item-header">
+                        <h3>${item.title}</h3>
+                        <span class="content-badge">${item.type}</span>
+                    </div>
+                    <p class="content-description">${item.description || 'No description'}</p>
+                    <div class="content-item-footer">
+                        <button onclick="viewContent('${item.id}', '${tabType}')" class="btn-secondary">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button onclick="toggleBookmarkItem('${item.id}')" class="btn-icon">
+                            <i class="fas ${isItemBookmarked(item.id) ? 'fa-bookmark' : 'fa-regular fa-bookmark'}"></i>
+                        </button>
+                        ${(tabType === 'notes' || tabType === 'pyqs') ? `
+                            <button onclick="downloadContentItem('${item.id}')" class="btn-icon">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(itemEl);
+            });
+        }
+
+        function renderVideoItems(items, container) {
+            items.forEach(item => {
+                const videoEl = document.createElement('div');
+                videoEl.className = 'video-card';
+                const videoId = extractYoutubeId(item.link);
+                videoEl.innerHTML = `
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="${item.title}">
+                        <div class="play-button">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h4>${item.title}</h4>
+                        <p>${item.description || 'Video lecture'}</p>
+                        <div class="video-actions">
+                            <button onclick="watchVideo('${item.link}', '${item.title}')" class="btn-primary">
+                                <i class="fas fa-play"></i> Watch
+                            </button>
+                            <button onclick="toggleBookmarkItem('${item.id}')" class="btn-icon">
+                                <i class="fas ${isItemBookmarked(item.id) ? 'fa-bookmark' : 'fa-regular fa-bookmark'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(videoEl);
+            });
+        }
+
+        function watchVideo(link, title) {
+            const videoId = extractYoutubeId(link);
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = `
+                <iframe width="100%" height="500" src="https://www.youtube.com/embed/${videoId}" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen></iframe>
+            `;
+            document.getElementById('downloadBtn').style.display = 'none';
+            document.getElementById('contentModal').classList.remove('hidden');
+            currentContentId = null;
+        }
+
+        function viewContent(itemId, tabType) {
+            const items = getContentBySubjectAndType(currentSubject.code, tabType);
+            const item = items.find(i => i.id === itemId);
+
+            if (!item) return;
+
+            currentContentId = itemId;
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="content-details">
+                    <p><strong>Subject:</strong> ${currentSubject.name}</p>
+                    <p><strong>Type:</strong> ${item.type}</p>
+                    ${item.content ? `<div class="content-text">${item.content}</div>` : ''}
+                    ${item.link ? `<p><strong>Link:</strong> <a href="${item.link}" target="_blank">${item.link}</a></p>` : ''}
+                </div>
+            `;
+            document.getElementById('downloadBtn').style.display = 'inline-block';
+            document.getElementById('contentModal').classList.remove('hidden');
+        }
+
+        function toggleBookmarkItem(itemId) {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarkedItems')) || [];
+            const index = bookmarks.indexOf(itemId);
+
+            if (index > -1) {
+                bookmarks.splice(index, 1);
+                showToast('Removed from bookmarks ❌', 'error');
+            } else {
+                bookmarks.push(itemId);
+                showToast('Added to bookmarks ⭐', 'success');
+            }
+
+            localStorage.setItem('bookmarkedItems', JSON.stringify(bookmarks));
+            loadTabContents(document.querySelector('.tab-button.active').textContent.toLowerCase().split(' ')[0]);
+        }
+
+        function toggleBookmarkContent() {
+            if (!currentContentId) return;
+            toggleBookmarkItem(currentContentId);
+        }
+
+        function isItemBookmarked(itemId) {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarkedItems')) || [];
+            return bookmarks.includes(itemId);
+        }
+
+        function toggleBookmarkSubject() {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarkedSubjects')) || [];
+            const index = bookmarks.findIndex(b => b.code === currentSubject.code);
+
+            if (index > -1) {
+                bookmarks.splice(index, 1);
+                showToast('Subject removed from bookmarks ❌', 'error');
+            } else {
+                bookmarks.push({
+                    code: currentSubject.code,
+                    name: currentSubject.name,
+                    semester: currentSubject.semester
+                });
+                showToast('Subject added to bookmarks ⭐', 'success');
+            }
+
+            localStorage.setItem('bookmarkedSubjects', JSON.stringify(bookmarks));
+            updateBookmarkButton();
+        }
+
+        function updateBookmarkButton() {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarkedSubjects')) || [];
+            const isBookmarked = bookmarks.some(b => b.code === currentSubject.code);
+            const btn = document.getElementById('bookmarkBtn');
+            btn.classList.toggle('active', isBookmarked);
+            btn.innerHTML = `<i class="fas fa-bookmark"></i> <span>${isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>`;
+        }
+
+        function toggleSubjectComplete() {
+            const completed = JSON.parse(localStorage.getItem('completedSubjects')) || [];
+            const index = completed.indexOf(currentSubject.code);
+
+            if (index > -1) {
+                completed.splice(index, 1);
+                showToast('Subject marked incomplete', 'info');
+            } else {
+                completed.push(currentSubject.code);
+                showToast('Subject marked as complete ✅', 'success');
+            }
+
+            localStorage.setItem('completedSubjects', JSON.stringify(completed));
+            updateCompleteButton();
+        }
+
+        function updateCompleteButton() {
+            const completed = JSON.parse(localStorage.getItem('completedSubjects')) || [];
+            const isCompleted = completed.includes(currentSubject.code);
+            const btn = document.getElementById('completeBtn');
+            btn.classList.toggle('active', isCompleted);
+            btn.innerHTML = `<i class="fas fa-check-circle"></i> <span>${isCompleted ? 'Completed' : 'Mark Complete'}</span>`;
+        }
+
+        function downloadContent() {
+            showToast('Download started 📥', 'success');
+        }
+
+        function closeContentModal() {
+            document.getElementById('contentModal').classList.add('hidden');
+            currentContentId = null;
+        }
+
+        function filterContent(tabType) {
+            const searchId = tabType + 'Search';
+            const query = document.getElementById(searchId).value.toLowerCase();
+            const items = getContentBySubjectAndType(currentSubject.code, tabType);
+            const filtered = items.filter(item =>
+                item.title.toLowerCase().includes(query) ||
+                (item.description && item.description.toLowerCase().includes(query))
+            );
+
+            const typeMap = {
+                'notes': 'notesList',
+                'pyqs': 'pyqsList',
+                'videos': 'videosList',
+                'programs': 'programsList',
+                'lab': 'labList'
+            };
+            const container = document.getElementById(typeMap[tabType]);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No results found</p></div>';
+                return;
+            }
+
+            if (tabType === 'videos') {
+                renderVideoItems(filtered, container);
+            } else {
+                renderContentItems(filtered, container, tabType);
+            }
+        }
+
+        function extractYoutubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : '';
+        }
+    </script>
+</body>
+</html>

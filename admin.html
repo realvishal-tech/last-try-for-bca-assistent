@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - BCA Study Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="adminLogin" class="admin-login">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h1>Admin Panel</h1>
+                <p>Secure Access Required</p>
+                <form id="adminLoginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="adminEmail">Email</label>
+                        <input type="email" id="adminEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+                <p class="login-hint">Demo: 10717vishal@gmail.com / Vishal@@2004</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (hidden initially) -->
+    <div id="adminDashboard" class="hidden">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <div class="navbar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#" onclick="switchAdminTab('dashboard')" class="nav-link active">Dashboard</a></li>
+                    <li><a href="#" onclick="switchAdminTab('content')" class="nav-link">Content</a></li>
+                    <li><a href="#" onclick="switchAdminTab('analytics')" class="nav-link">Analytics</a></li>
+                    <li>
+                        <button class="btn-logout" onclick="adminLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="admin-main">
+            <div class="container">
+                <!-- Dashboard Tab -->
+                <div id="dashboardTab" class="admin-tab active">
+                    <h1>Admin Dashboard</h1>
+
+                    <!-- Stats -->
+                    <div class="admin-stats">
+                        <div class="stat-box">
+                            <i class="fas fa-book"></i>
+                            <div>
+                                <h3 id="totalNotes">0</h3>
+                                <p>Total Notes</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-file-alt"></i>
+                            <div>
+                                <h3 id="totalPYQs">0</h3>
+                                <p>Total PYQs</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-play-circle"></i>
+                            <div>
+                                <h3 id="totalVideos">0</h3>
+                                <p>Total Videos</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-code"></i>
+                            <div>
+                                <h3 id="totalPrograms">0</h3>
+                                <p>Total Programs</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h2>Quick Actions</h2>
+                        <div class="action-buttons">
+                            <button onclick="switchAdminTab('content'); scrollToForm('add')" class="btn-primary">
+                                <i class="fas fa-plus"></i> Add New Content
+                            </button>
+                            <button onclick="exportData()" class="btn-secondary">
+                                <i class="fas fa-download"></i> Export Data
+                            </button>
+                            <button onclick="importData()" class="btn-secondary">
+                                <i class="fas fa-upload"></i> Import Data
+                            </button>
+                            <button onclick="resetData()" class="btn-danger">
+                                <i class="fas fa-trash"></i> Reset All Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Management Tab -->
+                <div id="contentTab" class="admin-tab hidden">
+                    <h1>Content Management</h1>
+
+                    <!-- Add/Edit Form -->
+                    <div id="contentForm" class="form-card">
+                        <h2 id="formTitle">Add New Content</h2>
+                        <form id="addContentForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contentTitle">Title</label>
+                                    <input type="text" id="contentTitle" placeholder="Content title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contentSubject">Subject</label>
+                                    <select id="contentSubject" required>
+                                        <option value="">Select Subject</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contentSemester">Semester</label>
+                                    <select id="contentSemester" onchange="updateSubjectsForSemester()">
+                                        <option value="1">Semester 1</option>
+                                        <option value="2">Semester 2</option>
+                                        <option value="3">Semester 3</option>
+                                        <option value="4">Semester 4</option>
+                                        <option value="5">Semester 5</option>
+                                        <option value="6">Semester 6</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contentType">Type</label>
+                                    <select id="contentType" required>
+                                        <option value="Notes">Notes</option>
+                                        <option value="PYQs">PYQs</option>
+                                        <option value="Videos">Videos</option>
+                                        <option value="Programs">Programs</option>
+                                        <option value="Lab">Lab</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contentDescription">Description</label>
+                                <textarea id="contentDescription" placeholder="Brief description" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contentLink">Link/URL</label>
+                                <input type="url" id="contentLink" placeholder="https://...">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contentContent">Content (for inline content)</label>
+                                <textarea id="contentContent" placeholder="Paste your content here..." rows="5"></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-save"></i> Save Content
+                                </button>
+                                <button type="button" class="btn-secondary" onclick="resetForm()">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Content List -->
+                    <div class="content-list-section">
+                        <h2>All Content</h2>
+                        <div class="filter-controls">
+                            <input type="text" id="filterSearch" placeholder="Search content..." onkeyup="filterAdminContent()">
+                            <select id="filterType" onchange="filterAdminContent()">
+                                <option value="">All Types</option>
+                                <option value="Notes">Notes</option>
+                                <option value="PYQs">PYQs</option>
+                                <option value="Videos">Videos</option>
+                                <option value="Programs">Programs</option>
+                                <option value="Lab">Lab</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Subject</th>
+                                        <th>Type</th>
+                                        <th>Semester</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contentTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div id="analyticsTab" class="admin-tab hidden">
+                    <h1>Analytics & Statistics</h1>
+
+                    <div class="analytics-section">
+                        <div class="chart-card">
+                            <h3>Content Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="contentChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <h3>Semester-wise Content</h3>
+                            <div class="chart-container">
+                                <canvas id="semesterChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="analytics-stat">
+                                <h4>Total Users (Simulated)</h4>
+                                <p class="stat-number" id="userStats">0</p>
+                            </div>
+                            <div class="analytics-stat">
+                                <h4>Total Content Items</h4>
+                                <p class="stat-number" id="contentStats">0</p>
+                            </div>
+                            <div class="analytics-stat">
+                                <h4>Average Rating</h4>
+                                <p class="stat-number">4.8/5</p>
+                            </div>
+                            <div class="analytics-stat">
+                                <h4>Content Coverage</h4>
+                                <p class="stat-number">95%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Content Modal for Edit -->
+    <div id="contentModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Content</h2>
+                <button class="btn-icon" onclick="closeContentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="contentEditForm"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentEditId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTheme();
+            checkAdminLogin();
+            document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
+        });
+
+        function checkAdminLogin() {
+            const isAdmin = sessionStorage.getItem('adminLoggedIn');
+            if (!isAdmin) {
+                document.getElementById('adminLogin').style.display = 'flex';
+                document.getElementById('adminDashboard').classList.add('hidden');
+            } else {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                loadAdminDashboard();
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (email === '10717vishal@gmail.com' && password === 'Vishal@@2004') {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                loadAdminDashboard();
+                showToast('Login successful ✅', 'success');
+            } else {
+                showToast('Invalid credentials ❌', 'error');
+            }
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            checkAdminLogin();
+            showToast('Logged out successfully', 'info');
+        }
+
+        function loadAdminDashboard() {
+            const allContent = getAllContent();
+
+            const types = {
+                'Notes': 0,
+                'PYQs': 0,
+                'Videos': 0,
+                'Programs': 0,
+                'Lab': 0
+            };
+
+            allContent.forEach(item => {
+                types[item.type] = (types[item.type] || 0) + 1;
+            });
+
+            document.getElementById('totalNotes').textContent = types['Notes'] || 0;
+            document.getElementById('totalPYQs').textContent = types['PYQs'] || 0;
+            document.getElementById('totalVideos').textContent = types['Videos'] || 0;
+            document.getElementById('totalPrograms').textContent = types['Programs'] || 0;
+
+            document.getElementById('contentStats').textContent = allContent.length;
+            document.getElementById('userStats').textContent = Math.floor(Math.random() * 500) + 100;
+
+            populateSubjectSelect();
+            loadContentTable();
+        }
+
+        function populateSubjectSelect() {
+            const semester = document.getElementById('contentSemester').value || 1;
+            const subjects = getSubjectsBySemester(semester);
+            const select = document.getElementById('contentSubject');
+            select.innerHTML = '<option value="">Select Subject</option>';
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.code;
+                option.textContent = `${subject.code} - ${subject.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        function updateSubjectsForSemester() {
+            populateSubjectSelect();
+        }
+
+        function loadContentTable() {
+            const allContent = getAllContent();
+            const tbody = document.getElementById('contentTableBody');
+            tbody.innerHTML = '';
+
+            allContent.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.title}</strong></td>
+                    <td>${item.subject}</td>
+                    <td><span class="badge">${item.type}</span></td>
+                    <td>Sem ${item.semester}</td>
+                    <td>
+                        <button class="btn-icon" onclick="editContent('${item.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-danger" onclick="deleteContent('${item.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        document.getElementById('addContentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const content = {
+                id: currentEditId || Date.now().toString(),
+                title: document.getElementById('contentTitle').value,
+                subject: document.getElementById('contentSubject').value,
+                subjectName: document.getElementById('contentSubject')
+                    .options[document.getElementById('contentSubject').selectedIndex].text.split(' - ')[1],
+                semester: parseInt(document.getElementById('contentSemester').value),
+                type: document.getElementById('contentType').value,
+                description: document.getElementById('contentDescription').value,
+                link: document.getElementById('contentLink').value,
+                content: document.getElementById('contentContent').value
+            };
+
+            saveContent(content, currentEditId);
+            resetForm();
+            loadContentTable();
+            loadAdminDashboard();
+            showToast(`Content ${currentEditId ? 'updated' : 'added'} successfully ✅`, 'success');
+        });
+
+        function editContent(id) {
+            const allContent = getAllContent();
+            const item = allContent.find(c => c.id === id);
+            if (!item) return;
+
+            currentEditId = id;
+            document.getElementById('formTitle').textContent = 'Edit Content';
+            document.getElementById('contentTitle').value = item.title;
+            document.getElementById('contentSemester').value = item.semester;
+            updateSubjectsForSemester();
+            setTimeout(() => {
+                document.getElementById('contentSubject').value = item.subject;
+            }, 100);
+            document.getElementById('contentType').value = item.type;
+            document.getElementById('contentDescription').value = item.description || '';
+            document.getElementById('contentLink').value = item.link || '';
+            document.getElementById('contentContent').value = item.content || '';
+            document.getElementById('addContentForm').querySelector('button').innerHTML = '<i class="fas fa-save"></i> Update Content';
+            scrollToForm('add');
+        }
+
+        function deleteContent(id) {
+            if (confirm('Are you sure you want to delete this content?')) {
+                deleteContentItem(id);
+                loadContentTable();
+                loadAdminDashboard();
+                showToast('Content deleted ❌', 'success');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('addContentForm').reset();
+            currentEditId = null;
+            document.getElementById('formTitle').textContent = 'Add New Content';
+            document.getElementById('addContentForm').querySelector('button').innerHTML = '<i class="fas fa-save"></i> Save Content';
+        }
+
+        function filterAdminContent() {
+            const search = document.getElementById('filterSearch').value.toLowerCase();
+            const type = document.getElementById('filterType').value;
+            const allContent = getAllContent();
+
+            const filtered = allContent.filter(item =>
+                (item.title.toLowerCase().includes(search) ||
+                 item.subject.toLowerCase().includes(search)) &&
+                (!type || item.type === type)
+            );
+
+            const tbody = document.getElementById('contentTableBody');
+            tbody.innerHTML = '';
+
+            filtered.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.title}</strong></td>
+                    <td>${item.subject}</td>
+                    <td><span class="badge">${item.type}</span></td>
+                    <td>Sem ${item.semester}</td>
+                    <td>
+                        <button class="btn-icon" onclick="editContent('${item.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-danger" onclick="deleteContent('${item.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+
+            if (tabName === 'analytics') {
+                setTimeout(() => {
+                    // Simple chart simulation
+                }, 100);
+            }
+        }
+
+        function exportData() {
+            const data = {
+                content: getAllContent(),
+                bookmarks: JSON.parse(localStorage.getItem('bookmarkedItems')) || [],
+                completedSubjects: JSON.parse(localStorage.getItem('completedSubjects')) || [],
+                bookmarkedSubjects: JSON.parse(localStorage.getItem('bookmarkedSubjects')) || []
+            };
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bca-studyhub-data.json';
+            a.click();
+
+            showToast('Data exported successfully 📥', 'success');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        if (data.content) {
+                            localStorage.setItem('bcaContent', JSON.stringify(data.content));
+                        }
+                        loadAdminDashboard();
+                        loadContentTable();
+                        showToast('Data imported successfully ✅', 'success');
+                    } catch (error) {
+                        showToast('Invalid file format ❌', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function resetData() {
+            if (confirm('Are you sure? This will reset ALL data!')) {
+                localStorage.removeItem('bcaContent');
+                localStorage.removeItem('bookmarkedItems');
+                localStorage.removeItem('completedSubjects');
+                localStorage.removeItem('bookmarkedSubjects');
+                initializeData();
+                loadAdminDashboard();
+                loadContentTable();
+                showToast('All data reset ✅', 'success');
+            }
+        }
+
+        function scrollToForm(id) {
+            const element = document.getElementById(id || 'contentForm');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>

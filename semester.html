@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester - BCA Study Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>BCA Study Hub</span>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="#" onclick="navigateToBookmarks(); return false;" class="nav-link">
+                    <i class="fas fa-bookmark"></i> Bookmarks
+                </a></li>
+                <li><a href="#" onclick="navigateToProgress(); return false;" class="nav-link">
+                    <i class="fas fa-chart-pie"></i> Progress
+                </a></li>
+                <li><a href="admin.html" class="nav-link">
+                    <i class="fas fa-lock"></i> Admin
+                </a></li>
+                <li>
+                    <button id="themeToggle" class="btn-theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button id="logoutBtn" class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <span id="semesterBreadcrumb">Semester</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Semester Header -->
+            <div class="semester-header">
+                <h1 id="semesterTitle">Semester</h1>
+                <p id="semesterSubtitle">Select a subject to explore</p>
+            </div>
+
+            <!-- Semester Stats -->
+            <div class="semester-stats">
+                <div class="stat-card">
+                    <i class="fas fa-book"></i>
+                    <div>
+                        <h4 id="totalSubjects">0</h4>
+                        <p>Total Subjects</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h4 id="completedSubjects">0</h4>
+                        <p>Completed</p>
+                    </div>
+                </div>
+                <div class="stat-card progress-card">
+                    <div class="progress-bar-small">
+                        <div id="semesterProgressBar" class="progress-fill"></div>
+                    </div>
+                    <p>Overall Progress</p>
+                </div>
+            </div>
+
+            <!-- Subjects Grid -->
+            <div class="subjects-grid" id="subjectsGrid"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 BCA Study Hub - LND College | Crafted with <i class="fas fa-heart"></i> for students</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTheme();
+            setupHamburger();
+            loadSemesterPage();
+        });
+
+        function loadSemesterPage() {
+            const params = new URLSearchParams(window.location.search);
+            const semNum = params.get('sem');
+
+            if (!semNum || semNum < 1 || semNum > 6) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const semester = parseInt(semNum);
+            const subjects = getSubjectsBySemester(semester);
+
+            document.getElementById('semesterTitle').textContent = `Semester ${semester}`;
+            document.getElementById('semesterBreadcrumb').textContent = `Semester ${semester}`;
+            document.getElementById('totalSubjects').textContent = subjects.length;
+
+            renderSubjectCards(subjects, semester);
+            updateSemesterProgress(semester);
+        }
+
+        function renderSubjectCards(subjects, semester) {
+            const grid = document.getElementById('subjectsGrid');
+            grid.innerHTML = '';
+
+            subjects.forEach(subject => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                const isCompleted = isSubjectCompleted(subject.code);
+
+                card.innerHTML = `
+                    <div class="subject-header">
+                        <h3>${subject.name}</h3>
+                        <span class="subject-code">${subject.code}</span>
+                    </div>
+                    <p class="subject-type">${subject.type}</p>
+                    <div class="subject-progress">
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill" style="width: ${isCompleted ? 100 : 0}%"></div>
+                        </div>
+                    </div>
+                    <div class="subject-actions">
+                        <button onclick="navigateToSubject('${subject.code}', '${subject.name}', ${semester})" class="btn-secondary">
+                            <i class="fas fa-arrow-right"></i> Explore
+                        </button>
+                        <button onclick="toggleSubjectCompletion('${subject.code}')" class="btn-icon">
+                            <i class="fas fa-${isCompleted ? 'check-circle' : 'circle'}"></i>
+                        </button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function updateSemesterProgress(semester) {
+            const subjects = getSubjectsBySemester(semester);
+            const completed = subjects.filter(s => isSubjectCompleted(s.code)).length;
+            const percentage = Math.round((completed / subjects.length) * 100);
+
+            document.getElementById('completedSubjects').textContent = completed;
+            document.getElementById('semesterProgressBar').style.width = percentage + '%';
+        }
+
+        function navigateToSubject(subjectCode, subjectName, semester) {
+            window.location.href = `subject.html?code=${subjectCode}&name=${encodeURIComponent(subjectName)}&sem=${semester}`;
+        }
+    </script>
+</body>
+</html>
