@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Materials - BCA Study Hub</title>
+    <link rel="stylesheet" href="style-firebase.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fas fa-book"></i>
+                <span>BCA Study Materials</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index-materials.html" class="nav-link active">Materials</a></li>
+                <li><a href="admin.html" class="nav-link">Admin</a></li>
+                <li><button id="themeToggleBtn" class="btn-theme">
+                    <i class="fas fa-moon"></i>
+                </button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Top Controls -->
+    <div class="controls-section">
+        <div class="container">
+            <div class="control-group">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search materials..."
+                        onkeyup="filterMaterials()"
+                    >
+                </div>
+                <select id="semesterFilter" onchange="filterMaterials()" class="filter-select">
+                    <option value="">All Semesters</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading materials...</p>
+    </div>
+
+    <!-- Main Content -->
+    <main class="materials-container" id="materialsContainer">
+        <!-- Semesters will be dynamically generated here -->
+    </main>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state hidden">
+        <i class="fas fa-inbox"></i>
+        <h3>No Materials Yet</h3>
+        <p>Materials will appear here once added by administrators.</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="materials-handler.js"></script>
+</body>
+</html>

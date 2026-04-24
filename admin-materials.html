@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Add Study Materials</title>
+    <link rel="stylesheet" href="style-firebase.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Admin Panel</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index-materials.html" class="nav-link">Materials</a></li>
+                <li><a href="admin-materials.html" class="nav-link active">Admin</a></li>
+                <li><button id="themeToggleBtn" class="btn-theme">
+                    <i class="fas fa-moon"></i>
+                </button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Admin Login Screen -->
+    <div id="adminLogin" class="admin-login">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h1>Admin Panel</h1>
+                <p>Secure Access Required</p>
+                <form id="adminLoginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="adminEmail">Email</label>
+                        <input type="email" id="adminEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+                <p class="login-hint">Demo: admin@bca.com / Admin@@2023</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden admin-dashboard">
+        <div class="container">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1>Add Study Materials</h1>
+                <button class="btn-danger" onclick="adminLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-card admin-form-card">
+                <h2>Upload New Material</h2>
+                <form id="addMaterialForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="semesterSelect" class="form-label">
+                                <i class="fas fa-graduation-cap"></i> Semester
+                            </label>
+                            <select id="semesterSelect" onchange="updateSubjects()" required>
+                                <option value="">Select Semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectSelect" class="form-label">
+                                <i class="fas fa-book"></i> Subject
+                            </label>
+                            <select id="subjectSelect" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descriptionInput" class="form-label">
+                            <i class="fas fa-file-alt"></i> Description
+                        </label>
+                        <input 
+                            type="text" 
+                            id="descriptionInput" 
+                            placeholder="Enter material description (e.g., Chapter 1 Notes, Practice Problems)"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="linkInput" class="form-label">
+                            <i class="fas fa-link"></i> Material Link
+                        </label>
+                        <input 
+                            type="url" 
+                            id="linkInput" 
+                            placeholder="https://example.com/material"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary submit-btn">
+                            <i class="fas fa-upload"></i> Upload Material
+                        </button>
+                        <button type="reset" class="btn-secondary">
+                            <i class="fas fa-redo"></i> Clear Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-section">
+                <h2>Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalMaterials">0</h3>
+                            <p>Total Materials</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalSubjects">0</h3>
+                            <p>Subjects with Materials</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalSemesters">0</h3>
+                            <p>Semesters with Materials</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Materials List -->
+            <div class="materials-list-section">
+                <h2>Recent Materials</h2>
+                <div class="filter-controls">
+                    <input 
+                        type="text" 
+                        id="adminSearchInput" 
+                        placeholder="Search materials..."
+                        onkeyup="filterAdminMaterials()"
+                    >
+                </div>
+                <div class="table-responsive">
+                    <table class="materials-table">
+                        <thead>
+                            <tr>
+                                <th>Semester</th>
+                                <th>Subject</th>
+                                <th>Description</th>
+                                <th>Link</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materialsTableBody">
+                            <tr class="empty-row">
+                                <td colspan="5" style="text-align: center; color: #999;">Loading materials...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="admin-handler.js"></script>
+</body>
+</html>
