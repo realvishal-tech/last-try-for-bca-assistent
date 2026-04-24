@@ -3,190 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCA Study Hub - LND College</title>
+    <title>BCA Study Platform - Realtime Materials</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Entry Screen -->
-    <div id="entryScreen" class="entry-screen">
-        <div class="entry-container">
-            <div class="entry-card">
-                <div class="entry-icon">
-                    <i class="fas fa-book"></i>
-                </div>
-                <h1>BCA Study Hub</h1>
-                <p class="entry-subtitle">LND College</p>
-                <form id="entryForm" class="entry-form">
-                    <input 
-                        type="text" 
-                        id="nameInput" 
-                        placeholder="Enter your name" 
-                        required
-                        autocomplete="off"
-                    >
-                    <button type="submit" class="btn-primary">
-                        <span>Let's Study</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+    <div class="bg-orb orb-one" aria-hidden="true"></div>
+    <div class="bg-orb orb-two" aria-hidden="true"></div>
 
-    <!-- Welcome Modal -->
-    <div id="welcomeModal" class="modal hidden">
-        <div class="modal-content welcome-modal">
-            <div class="modal-icon">
-                <i class="fas fa-hand-peace"></i>
-            </div>
-            <h2 id="welcomeText"></h2>
-            <p>Ready to ace your studies?</p>
-            <button class="btn-primary" onclick="closeWelcomeModal()">
-                Get Started
-            </button>
-        </div>
-    </div>
+    <header class="page-header">
+        <h1>BCA Study Platform</h1>
+        <p>Admin can add materials and students see updates instantly, no refresh required.</p>
+    </header>
 
-    <!-- Main App (Hidden initially) -->
-    <div id="mainApp" class="hidden">
-        <!-- Navigation -->
-        <nav class="navbar">
-            <div class="navbar-container">
-                <div class="navbar-logo">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>BCA Study Hub</span>
-                </div>
-                <div class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <ul class="nav-menu" id="navMenu">
-                    <li><a href="index.html" class="nav-link active">Home</a></li>
-                    <li><a href="#" onclick="navigateToBookmarks(); return false;" class="nav-link">
-                        <i class="fas fa-bookmark"></i> Bookmarks
-                    </a></li>
-                    <li><a href="#" onclick="navigateToProgress(); return false;" class="nav-link">
-                        <i class="fas fa-chart-pie"></i> Progress
-                    </a></li>
-                    <li><a href="admin.html" class="nav-link">
-                        <i class="fas fa-lock"></i> Admin
-                    </a></li>
-                    <li>
-                        <button id="themeToggle" class="btn-theme">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button id="logoutBtn" class="btn-logout" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+    <main class="layout">
+        <section class="panel admin-panel" aria-labelledby="adminTitle">
+            <h2 id="adminTitle">Admin Panel</h2>
+            <p class="panel-note">Add a material link under the correct semester and subject.</p>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Welcome to <span id="userNameDisplay"></span>'s Study Space</h1>
-                <p>All-in-one platform for BCA students</p>
-                <div class="search-container">
-                    <i class="fas fa-search"></i>
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        placeholder="Search subjects, topics..." 
-                        class="search-input"
-                    >
-                </div>
-            </div>
+            <form id="materialForm" class="material-form">
+                <label for="semesterSelect">Semester</label>
+                <select id="semesterSelect" required>
+                    <option value="">Select Semester</option>
+                </select>
+
+                <label for="subjectSelect">Subject</label>
+                <select id="subjectSelect" required>
+                    <option value="">Select Subject</option>
+                </select>
+
+                <label for="materialUrl">Material Link (URL)</label>
+                <input id="materialUrl" type="url" placeholder="https://example.com/resource" required>
+
+                <label for="materialDesc">Description</label>
+                <input id="materialDesc" type="text" placeholder="Unit 2 notes with solved examples" required>
+
+                <button id="submitBtn" type="submit">Add Material</button>
+            </form>
+
+            <p id="adminStatus" class="status-text" aria-live="polite"></p>
         </section>
 
-        <!-- Quick Access -->
-        <section class="quick-access">
-            <div class="container">
-                <h2>Quick Access</h2>
-                <div class="quick-access-grid">
-                    <div class="quick-card" onclick="filterByType('Notes')">
-                        <i class="fas fa-sticky-note"></i>
-                        <span>Notes</span>
-                    </div>
-                    <div class="quick-card" onclick="filterByType('PYQs')">
-                        <i class="fas fa-file-alt"></i>
-                        <span>PYQs</span>
-                    </div>
-                    <div class="quick-card" onclick="filterByType('Videos')">
-                        <i class="fas fa-play-circle"></i>
-                        <span>Videos</span>
-                    </div>
-                    <div class="quick-card" onclick="filterByType('Programs')">
-                        <i class="fas fa-code"></i>
-                        <span>Programs</span>
-                    </div>
-                </div>
+        <section class="panel user-panel" aria-labelledby="materialsTitle">
+            <div class="user-panel-head">
+                <h2 id="materialsTitle">Study Materials</h2>
+                <span class="live-indicator">Live</span>
             </div>
+            <p class="panel-note">Structure: Semester -> Subject -> Materials</p>
+
+            <div id="loadingState" class="loading-state">Loading materials...</div>
+            <div id="emptyState" class="empty-state hidden">No materials available yet.</div>
+            <div id="materialsContainer" class="materials-container"></div>
         </section>
+    </main>
 
-        <!-- Recently Viewed -->
-        <section class="recently-viewed" id="recentlyViewedSection" style="display: none;">
-            <div class="container">
-                <h2>Recently Viewed</h2>
-                <div class="content-grid" id="recentlyViewedGrid"></div>
-            </div>
-        </section>
-
-        <!-- Trending -->
-        <section class="trending" id="trendingSection" style="display: none;">
-            <div class="container">
-                <h2>Trending Topics</h2>
-                <div class="content-grid" id="trendingGrid"></div>
-            </div>
-        </section>
-
-        <!-- Continue Learning -->
-        <section class="continue-learning" id="continueLearningSection" style="display: none;">
-            <div class="container">
-                <h2>Continue Learning</h2>
-                <div class="content-grid" id="continueLearningGrid"></div>
-            </div>
-        </section>
-
-        <!-- Semesters Grid -->
-        <section class="semesters">
-            <div class="container">
-                <h2>Semesters</h2>
-                <div class="semester-grid" id="semesterGrid"></div>
-            </div>
-        </section>
-
-        <!-- Search Results (hidden by default) -->
-        <section class="search-results" id="searchResults" style="display: none;">
-            <div class="container">
-                <h2>Search Results</h2>
-                <button class="btn-secondary" onclick="clearSearch()">
-                    <i class="fas fa-times"></i> Clear Search
-                </button>
-                <div class="content-grid" id="searchResultsGrid"></div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <p>&copy; 2026 BCA Study Hub - LND College | Crafted with <i class="fas fa-heart"></i> for students</p>
-                <p>Designed for modern learners | Powered by Static Frontend</p>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Progress Bar -->
-    <div class="page-progress-bar" id="progressBar"></div>
-
-    <!-- Toast Notification -->
-    <div id="toastContainer" class="toast-container"></div>
-
+    <!-- Firebase (compat build for simple static hosting use) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
