@@ -3,25 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCA Study Platform - Realtime Materials</title>
+    <title>BCA Study Hub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="bg-orb orb-one" aria-hidden="true"></div>
-    <div class="bg-orb orb-two" aria-hidden="true"></div>
+    <div class="shape shape-1" aria-hidden="true"></div>
+    <div class="shape shape-2" aria-hidden="true"></div>
 
-    <header class="page-header">
-        <h1>BCA Study Platform</h1>
-        <p>Admin can add materials and students see updates instantly, no refresh required.</p>
+    <header class="hero wrap">
+        <p class="hero-tag">Realtime Learning Platform</p>
+        <h1>BCA Study Hub</h1>
+        <p class="hero-subtext">Admin uploads materials once, students see updates instantly across all semesters.</p>
     </header>
 
-    <main class="layout">
-        <section class="panel admin-panel" aria-labelledby="adminTitle">
-            <h2 id="adminTitle">Admin Panel</h2>
-            <p class="panel-note">Add a material link under the correct semester and subject.</p>
+    <section class="features wrap" aria-labelledby="featureHeading">
+        <div class="section-header">
+            <h2 id="featureHeading">✨ Platform Features</h2>
+            <p>Everything you need for smarter BCA study</p>
+        </div>
+        <div class="feature-grid">
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">📡</span>
+                <h3>Real-Time Updates</h3>
+                <p>Study materials appear instantly when added by admin.</p>
+            </article>
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">🎓</span>
+                <h3>Semester-Wise Structure</h3>
+                <p>Content stays organized as Semester, Subject, and Materials.</p>
+            </article>
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">🛠️</span>
+                <h3>Admin Upload System</h3>
+                <p>Admin can quickly add useful links with clear descriptions.</p>
+            </article>
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">🔄</span>
+                <h3>Dynamic Subject Selection</h3>
+                <p>Subject list updates automatically based on chosen semester.</p>
+            </article>
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">🎨</span>
+                <h3>Clean UI Design</h3>
+                <p>Modern cards and balanced spacing improve readability.</p>
+            </article>
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">📱</span>
+                <h3>Fully Responsive</h3>
+                <p>Works smoothly on desktop, tablet, and mobile screens.</p>
+            </article>
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">🆕</span>
+                <h3>New Badge</h3>
+                <p>Recently added materials are highlighted for quick discovery.</p>
+            </article>
+            <article class="feature-card fade-in-up">
+                <span class="feature-icon">⚡</span>
+                <h3>Fast Performance</h3>
+                <p>Built using pure HTML, CSS, and JavaScript for speed.</p>
+            </article>
+        </div>
+    </section>
+
+    <main class="app wrap">
+        <section class="admin-panel card" aria-labelledby="adminHeading">
+            <h2 id="adminHeading">Admin Panel</h2>
+            <p class="muted">Add study materials by semester and subject.</p>
 
             <form id="materialForm" class="material-form">
                 <label for="semesterSelect">Semester</label>
@@ -35,33 +85,34 @@
                 </select>
 
                 <label for="materialUrl">Material Link (URL)</label>
-                <input id="materialUrl" type="url" placeholder="https://example.com/resource" required>
+                <input id="materialUrl" type="url" placeholder="https://example.com/study-material" required>
 
                 <label for="materialDesc">Description</label>
-                <input id="materialDesc" type="text" placeholder="Unit 2 notes with solved examples" required>
+                <input id="materialDesc" type="text" placeholder="Chapter 3 notes with solved examples" required>
 
-                <button id="submitBtn" type="submit">Add Material</button>
+                <button id="submitButton" type="submit">Upload Material</button>
             </form>
 
-            <p id="adminStatus" class="status-text" aria-live="polite"></p>
+            <p id="formMessage" class="form-message" aria-live="polite"></p>
         </section>
 
-        <section class="panel user-panel" aria-labelledby="materialsTitle">
-            <div class="user-panel-head">
-                <h2 id="materialsTitle">Study Materials</h2>
-                <span class="live-indicator">Live</span>
+        <section class="user-panel card" aria-labelledby="materialsHeading">
+            <div class="panel-title-row">
+                <h2 id="materialsHeading">Study Materials</h2>
+                <span class="live-pill">Live</span>
             </div>
-            <p class="panel-note">Structure: Semester -> Subject -> Materials</p>
+            <p class="muted">Display order: Semester → Subject → Materials</p>
 
-            <div id="loadingState" class="loading-state">Loading materials...</div>
-            <div id="emptyState" class="empty-state hidden">No materials available yet.</div>
+            <div id="loadingState" class="info-box">Loading materials...</div>
+            <div id="emptyState" class="info-box hidden">No materials available</div>
             <div id="materialsContainer" class="materials-container"></div>
         </section>
     </main>
 
-    <!-- Firebase (compat build for simple static hosting use) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
+    <footer class="footer wrap">
+        <p>DEVELOP 👉 VISHAL KUMAR (SEM 2)</p>
+    </footer>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>

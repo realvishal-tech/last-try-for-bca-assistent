@@ -1,10 +1,7 @@
-/*
-  BCA Study Platform
-  - Admin writes material links to Firebase Realtime Database
-  - User section listens in real-time and renders Semester -> Subject -> Materials
-*/
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
-const BCA_STRUCTURE = {
+const BCA_SUBJECTS = {
     "Semester 1": [
         "BCA-101: Mathematical Foundation",
         "BCA-102: Computer Fundamentals",
@@ -26,7 +23,7 @@ const BCA_STRUCTURE = {
         "BCA-302: Database Management System",
         "BCA-303: Object Oriented Programming using C++",
         "BCA-304: Numerical Methodology",
-        "BCA-305: Lab on DBMS (SQL/MS-ACCESS)",
+        "BCA-305: Lab on DBMS",
         "BCA-306: Lab on C++"
     ],
     "Semester 4": [
@@ -40,7 +37,7 @@ const BCA_STRUCTURE = {
     "Semester 5": [
         "BCA-501: Relational Database Management System",
         "BCA-502: Artificial Intelligence through Python Programming",
-        "BCA-503: Web Technology (HTML, JavaScript, CSS)",
+        "BCA-503: Web Technology",
         "BCA-504: Computer Network, Security and Cyber Law",
         "BCA-505: Lab on Oracle",
         "BCA-506: Lab on Python Programming & Web Technology"
@@ -52,7 +49,6 @@ const BCA_STRUCTURE = {
     ]
 };
 
-// Use your Firebase project details. These are copied from the existing project config.
 const firebaseConfig = {
     apiKey: "AIzaSyDj_ZhNM5tVoPdX_Nz3aB2cQ7mKLpQrz4A",
     authDomain: "bca-study-hub-85d4a.firebaseapp.com",
@@ -65,36 +61,27 @@ const firebaseConfig = {
 const semesterSelect = document.getElementById("semesterSelect");
 const subjectSelect = document.getElementById("subjectSelect");
 const materialForm = document.getElementById("materialForm");
-const materialUrl = document.getElementById("materialUrl");
-const materialDesc = document.getElementById("materialDesc");
-const submitBtn = document.getElementById("submitBtn");
-const adminStatus = document.getElementById("adminStatus");
+const materialUrlInput = document.getElementById("materialUrl");
+const materialDescInput = document.getElementById("materialDesc");
+const submitButton = document.getElementById("submitButton");
+const formMessage = document.getElementById("formMessage");
 const loadingState = document.getElementById("loadingState");
 const emptyState = document.getElementById("emptyState");
 const materialsContainer = document.getElementById("materialsContainer");
 
-let materialsRef;
-let firstLoadCompleted = false;
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const materialsRef = ref(db, "materials");
 
-init();
+let firstLoadDone = false;
 
-function init() {
-    initializeFirebase();
-    populateSemesterDropdown();
-    bindEvents();
-    attachRealtimeListener();
-}
+initializeAppUI();
+bindFormEvents();
+listenToMaterials();
+setupFeatureCardAnimation();
 
-function initializeFirebase() {
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    materialsRef = firebase.database().ref("materials");
-}
-
-function populateSemesterDropdown() {
-    const semesterNames = Object.keys(BCA_STRUCTURE);
-    semesterNames.forEach((semesterName) => {
+function initializeAppUI() {
+    Object.keys(BCA_SUBJECTS).forEach((semesterName) => {
         const option = document.createElement("option");
         option.value = semesterName;
         option.textContent = semesterName;
@@ -102,7 +89,58 @@ function populateSemesterDropdown() {
     });
 }
 
-function updateSubjectDropdown(semesterName) {
+function bindFormEvents() {
+    semesterSelect.addEventListener("change", (event) => {
+        updateSubjectOptions(event.target.value);
+    });
+
+    materialForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        clearMessage();
+
+        const semester = semesterSelect.value.trim();
+        const subject = subjectSelect.value.trim();
+        const url = materialUrlInput.value.trim();
+        const desc = materialDescInput.value.trim();
+
+        if (!semester || !subject || !url || !desc) {
+            showMessage("Please fill all fields.", "error");
+            return;
+        }
+
+        if (!isValidHttpUrl(url)) {
+            showMessage("Please enter a valid URL (http/https).", "error");
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Uploading...";
+
+        try {
+            const subjectKey = toFirebaseSafeKey(subject);
+            const subjectRef = ref(db, `materials/${semester}/${subjectKey}`);
+            const newItemRef = push(subjectRef);
+
+            await set(newItemRef, {
+                url,
+                desc,
+                timestamp: Date.now(),
+                subjectLabel: subject
+            });
+
+            materialForm.reset();
+            updateSubjectOptions("");
+            showMessage("Material uploaded successfully.", "success");
+        } catch (error) {
+            showMessage(`Upload failed: ${error.message}`, "error");
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "Upload Material";
+        }
+    });
+}
+
+function updateSubjectOptions(semesterName) {
     subjectSelect.innerHTML = "";
 
     const placeholder = document.createElement("option");
@@ -110,11 +148,11 @@ function updateSubjectDropdown(semesterName) {
     placeholder.textContent = "Select Subject";
     subjectSelect.appendChild(placeholder);
 
-    if (!semesterName || !BCA_STRUCTURE[semesterName]) {
+    if (!semesterName || !BCA_SUBJECTS[semesterName]) {
         return;
     }
 
-    BCA_STRUCTURE[semesterName].forEach((subject) => {
+    BCA_SUBJECTS[semesterName].forEach((subject) => {
         const option = document.createElement("option");
         option.value = subject;
         option.textContent = subject;
@@ -122,67 +160,15 @@ function updateSubjectDropdown(semesterName) {
     });
 }
 
-function bindEvents() {
-    semesterSelect.addEventListener("change", (event) => {
-        updateSubjectDropdown(event.target.value);
-    });
-
-    materialForm.addEventListener("submit", handleMaterialSubmit);
-}
-
-async function handleMaterialSubmit(event) {
-    event.preventDefault();
-
-    const semester = semesterSelect.value;
-    const subject = subjectSelect.value;
-    const url = materialUrl.value.trim();
-    const desc = materialDesc.value.trim();
-
-    if (!semester || !subject || !url || !desc) {
-        setAdminStatus("Please fill all fields.", "error");
-        return;
-    }
-
-    if (!isValidHttpUrl(url)) {
-        setAdminStatus("Please enter a valid URL (http/https).", "error");
-        return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Saving...";
-
-    try {
-        await materialsRef.child(semester).child(subject).push({
-            url,
-            desc,
-            timestamp: Date.now()
-        });
-
-        materialUrl.value = "";
-        materialDesc.value = "";
-        setAdminStatus("Material added successfully.", "success");
-    } catch (error) {
-        setAdminStatus(`Failed to add material: ${error.message}`, "error");
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Add Material";
-    }
-}
-
-function setAdminStatus(message, type) {
-    adminStatus.textContent = message;
-    adminStatus.className = `status-text ${type}`;
-}
-
-function attachRealtimeListener() {
-    materialsRef.on(
-        "value",
+function listenToMaterials() {
+    onValue(
+        materialsRef,
         (snapshot) => {
-            const data = snapshot.val() || {};
-            renderMaterials(data);
+            const materialsData = snapshot.val() || {};
+            renderMaterials(materialsData);
 
-            if (!firstLoadCompleted) {
-                firstLoadCompleted = true;
+            if (!firstLoadDone) {
+                firstLoadDone = true;
                 loadingState.classList.add("hidden");
             }
         },
@@ -196,28 +182,27 @@ function attachRealtimeListener() {
 
 function renderMaterials(materialsData) {
     materialsContainer.innerHTML = "";
+    let hasData = false;
 
-    const semesterNames = Object.keys(BCA_STRUCTURE);
-    let hasAnyMaterial = false;
-
-    semesterNames.forEach((semesterName) => {
-        const semesterNode = materialsData[semesterName];
-        if (!semesterNode) {
+    Object.keys(BCA_SUBJECTS).forEach((semesterName) => {
+        const semesterData = materialsData[semesterName];
+        if (!semesterData) {
             return;
         }
 
-        const semesterBlock = document.createElement("section");
-        semesterBlock.className = "semester-block";
+        const semesterSection = document.createElement("section");
+        semesterSection.className = "semester-section";
 
-        const semesterTitle = document.createElement("h3");
-        semesterTitle.className = "semester-title";
-        semesterTitle.textContent = semesterName;
-        semesterBlock.appendChild(semesterTitle);
+        const semesterHeading = document.createElement("h3");
+        semesterHeading.className = "semester-heading";
+        semesterHeading.textContent = semesterName;
+        semesterSection.appendChild(semesterHeading);
 
-        let semesterHasMaterial = false;
+        let semesterHasAny = false;
 
-        BCA_STRUCTURE[semesterName].forEach((subjectName) => {
-            const subjectNode = semesterNode[subjectName];
+        BCA_SUBJECTS[semesterName].forEach((subjectLabel) => {
+            const subjectKey = toFirebaseSafeKey(subjectLabel);
+            const subjectNode = semesterData[subjectKey];
             if (!subjectNode) {
                 return;
             }
@@ -230,53 +215,53 @@ function renderMaterials(materialsData) {
                 return;
             }
 
-            semesterHasMaterial = true;
-            hasAnyMaterial = true;
+            hasData = true;
+            semesterHasAny = true;
 
-            const subjectBlock = document.createElement("article");
-            subjectBlock.className = "subject-block";
+            const subjectSection = document.createElement("article");
+            subjectSection.className = "subject-section";
 
-            const subjectTitle = document.createElement("h4");
-            subjectTitle.className = "subject-title";
-            subjectTitle.textContent = subjectName;
-            subjectBlock.appendChild(subjectTitle);
+            const subjectHeading = document.createElement("h4");
+            subjectHeading.className = "subject-heading";
+            subjectHeading.textContent = subjectLabel;
 
-            const materialsGrid = document.createElement("div");
-            materialsGrid.className = "materials-grid";
+            const materialGrid = document.createElement("div");
+            materialGrid.className = "material-grid";
 
             materialItems.forEach((item) => {
-                materialsGrid.appendChild(createMaterialCard(item));
+                materialGrid.appendChild(createMaterialCard(item));
             });
 
-            subjectBlock.appendChild(materialsGrid);
-            semesterBlock.appendChild(subjectBlock);
+            subjectSection.appendChild(subjectHeading);
+            subjectSection.appendChild(materialGrid);
+            semesterSection.appendChild(subjectSection);
         });
 
-        if (semesterHasMaterial) {
-            materialsContainer.appendChild(semesterBlock);
+        if (semesterHasAny) {
+            materialsContainer.appendChild(semesterSection);
         }
     });
 
-    emptyState.classList.toggle("hidden", hasAnyMaterial);
+    emptyState.classList.toggle("hidden", hasData);
 }
 
 function createMaterialCard(item) {
     const card = document.createElement("div");
     card.className = "material-card";
 
-    const cardTop = document.createElement("div");
-    cardTop.className = "card-top";
+    const top = document.createElement("div");
+    top.className = "material-top";
 
     const desc = document.createElement("p");
-    desc.className = "card-desc";
+    desc.className = "material-desc";
     desc.textContent = item.desc;
-    cardTop.appendChild(desc);
+    top.appendChild(desc);
 
-    if (isNew(item.timestamp)) {
+    if (isRecentlyAdded(item.timestamp)) {
         const badge = document.createElement("span");
         badge.className = "new-badge";
         badge.textContent = "NEW";
-        cardTop.appendChild(badge);
+        top.appendChild(badge);
     }
 
     const link = document.createElement("a");
@@ -287,26 +272,39 @@ function createMaterialCard(item) {
     link.textContent = "Open Material";
 
     const time = document.createElement("p");
-    time.className = "card-time";
+    time.className = "material-time";
     time.textContent = formatTimestamp(item.timestamp);
 
-    card.appendChild(cardTop);
+    card.appendChild(top);
     card.appendChild(link);
     card.appendChild(time);
-
     return card;
 }
 
-function isValidHttpUrl(urlString) {
+function showMessage(message, type) {
+    formMessage.textContent = message;
+    formMessage.className = `form-message ${type}`;
+}
+
+function clearMessage() {
+    formMessage.textContent = "";
+    formMessage.className = "form-message";
+}
+
+function isValidHttpUrl(input) {
     try {
-        const url = new URL(urlString);
-        return url.protocol === "http:" || url.protocol === "https:";
+        const parsed = new URL(input);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
     } catch {
         return false;
     }
 }
 
-function isNew(timestamp) {
+function toFirebaseSafeKey(text) {
+    return text.replace(/[.#$\[\]/]/g, "-");
+}
+
+function isRecentlyAdded(timestamp) {
     if (!timestamp) {
         return false;
     }
@@ -319,5 +317,24 @@ function formatTimestamp(timestamp) {
     }
 
     const date = new Date(timestamp);
-    return `Added on ${date.toLocaleString()}`;
+    return `Added: ${date.toLocaleString()}`;
+}
+
+function setupFeatureCardAnimation() {
+    const cards = document.querySelectorAll(".fade-in-up");
+    if (!cards.length || !("IntersectionObserver" in window)) {
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+                return;
+            }
+            entry.target.classList.add("visible");
+            currentObserver.unobserve(entry.target);
+        });
+    }, { threshold: 0.2 });
+
+    cards.forEach((card) => observer.observe(card));
 }
